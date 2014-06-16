@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package>
+  <name>human_aware_layers</name>
+
+  <version>0.0.1</version>
+
+  <description>adds proxemics layers for tracked humans</description>
+
+  <maintainer email="harmish@laas.fr">harmish khambhaita</maintainer>
+
+  <!--  <author email="author_email">author_name</author>  -->
+
+  <license>BSD</license>
+
+  <!--  <url website >http://wiki.ors.org/human_aware_layers</url>  -->
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>costmap_2d</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>costmap_2d</run_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+
+  <!--  <test_depend>some_pkg</test_depend>  -->
+
+  <!--  <conflict>some_pkg</conflict>  -->
+
+  <!--  <replace>some_pkg</replace>  -->
+
+  <export>
+    <!-- <metapackage/> -->
+    <costmap_2d plugin="${prefix}/costmap_plugins.xml" />
+  </export>
+</package>

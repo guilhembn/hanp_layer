@@ -136,10 +136,10 @@ target_link_libraries(human_aware_layers
 ## testing ##
 
 ## add catch based cpp test target
-# catkin_add_catchtest(${PROJECT_NAME}-test test/test_human_aware_layers.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+catkin_add_catchtest(${PROJECT_NAME}-test src/test/test_human_aware_layers.cpp)
+if(TARGET ${PROJECT_NAME}-test)
+  target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
+endif()
 
 ## add nosetest file folders
 # catkin_add_nosetests(test)

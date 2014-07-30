@@ -32,45 +32,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HUMAN_AWARE_SAFETY_LAYER_H
-#define HUMAN_AWARE_SAFETY_LAYER_H
-
-#include <ros/ros.h>
-#include <costmap_2d/layer.h>
-#include <costmap_2d/layered_costmap.h>
-#include <dynamic_reconfigure/server.h>
-
-#include <human_aware_layers_msgs/TrackedHumans.h>
-#include <human_aware_layers/SafetyLayerConfig.h>
+#ifndef HUMAN_AWARE_POSTURES_H
+#define HUMAN_AWARE_POSTURES_H
 
 namespace human_aware_layers
 {
-    class SafetyLayer : public costmap_2d::Layer
-    {
-        public:
-        SafetyLayer();
-
-        // onInitialize is called when tf_, name_, and layered_costmap_ are already set
-        virtual void onInitialize();
-
-        // method for updating internal map f this layer
-        virtual void updateBounds(double origin_x, double origin_y, double origin_yaw,
-                                double* min_x, double* min_y, double* max_x, double* max_y);
-
-        // method for applyting changes in this layer to global costmap
-        virtual void updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j,
-                               int max_i, int max_j);
-
-        unsigned char* createSafetyGrid(double radius,  double resolution=0.05);
-
-        private:
-        ros::Subscriber humans_sub;
-        void humansUpdate(const human_aware_layers_msgs::TrackedHumansPtr& humans);
-
-        void reconfigureCB(human_aware_layers::SafetyLayerConfig &config, uint32_t level);
-        dynamic_reconfigure::Server<human_aware_layers::SafetyLayerConfig> *dsrv_;
-
-        //std::map<HumanPosture, double[]> safetyGrids;
+    // enumerator for different human postures
+    enum HumanPosture {
+        STANDING,
+        SITTING,
+        WALKING
     };
 }
 

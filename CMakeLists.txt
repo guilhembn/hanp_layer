@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   costmap_2d
   dynamic_reconfigure
+  human_aware_layers_msgs
 )
 
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -61,6 +62,7 @@ catkin_package(
     roscpp
     costmap_2d
     dynamic_reconfigure
+    human_aware_layers_msgs
 #  DEPENDS system_lib
 )
 

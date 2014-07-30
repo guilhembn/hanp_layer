@@ -40,6 +40,7 @@
 #include <costmap_2d/layered_costmap.h>
 #include <dynamic_reconfigure/server.h>
 
+#include <human_aware_layers_msgs/TrackedHumans.h>
 #include <human_aware_layers/SafetyLayerConfig.h>
 
 namespace human_aware_layers

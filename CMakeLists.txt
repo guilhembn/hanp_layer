@@ -50,6 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
 # add dynamic reconfigure configs
 generate_dynamic_reconfigure_options(
   cfg/SafetyLayer.cfg
+  cfg/VisibilityLayer.cfg
 )
 
 ## declare catkin package
@@ -78,6 +79,7 @@ include_directories(
 ## declare a cpp library
 add_library(human_aware_layers
   src/safety_layer.cpp
+  src/visibility_layer.cpp
 )
 
 ## declare a cpp executable

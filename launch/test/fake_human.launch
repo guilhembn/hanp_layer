@@ -1,0 +1,11 @@
+<launch>
+    <!-- set logging level -->
+    <!--env name="ROSCONSOLE_CONFIG_FILE" value="$(find navigation_morse)/launch/custom_rosconsole.conf"/-->
+    <!--  publish fixed frame transformations  -->
+    <node pkg="tf" type="static_transform_publisher" name="humans_frmae_transform"
+          args="0 0 0 0 0 0 /map /humans_frame 100"/>
+
+    <!--  launch fake_human_publisher  -->
+    <node pkg="human_aware_layers" type="fake_human_publisher" name="fake_human_publisher"/>
+
+</launch>

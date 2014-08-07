@@ -137,6 +137,14 @@ target_link_libraries(human_aware_layers
 
 ## testing ##
 
+## add helpers for testing
+add_executable(fake_human_publisher
+  src/test/fake_human_publisher_node.cpp
+)
+target_link_libraries(fake_human_publisher
+  ${catkin_LIBRARIES}
+)
+
 ## add catch based cpp test target
 catkin_add_catchtest(${PROJECT_NAME}-test src/test/test_human_aware_layers.cpp)
 if(TARGET ${PROJECT_NAME}-test)

@@ -33,9 +33,9 @@
  */
 
 #define CATCH_CONFIG_RUNNER
-#include "catch.hpp"
-#include "human_aware_layers/safety_layer.h"
-#include "human_aware_layers/visibility_layer.h"
+#include <catch.hpp>
+#include <human_aware_layers/safety_layer.h>
+#include <human_aware_layers/visibility_layer.h>
 
 int main( int argc, char* const argv[] )
 {

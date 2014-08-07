@@ -66,9 +66,20 @@ namespace human_aware_layers
         private:
         ros::Subscriber humans_sub;
         void humansUpdate(const human_aware_layers_msgs::TrackedHumansPtr& humans);
+        human_aware_layers_msgs::TrackedHumansPtr lastTrackedHumans;
+        std::vector<geometry_msgs::PoseStamped> lastTransformedHumans;
+
+        std::string global_frame_;
 
         void reconfigureCB(human_aware_layers::SafetyLayerConfig &config, uint32_t level);
         dynamic_reconfigure::Server<human_aware_layers::SafetyLayerConfig> *dsrv_;
+
+        double size_x, size_y;      // size of grid around human
+        double safety_max;          // radius for safetry grid around human
+        double resolution;          // resolution of the map, copied from master map
+        ros::Duration human_tracking_delay;    // maximum time to wait before considering human_tracking is no more available
+        unsigned char* safety_grid; // variable to store created safety grid
+        double last_min_x, last_min_y, last_max_x, last_max_y;  // last updated grid values
 
         //std::map<HumanPosture, double[]> safetyGrids;
     };

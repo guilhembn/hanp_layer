@@ -6,6 +6,6 @@
           args="0 0 0 0 0 0 /map /humans_frame 100"/>
 
     <!--  launch fake_human_publisher  -->
-    <node pkg="human_aware_layers" type="fake_human_publisher" name="fake_human_publisher"/>
+    <node pkg="hanp_layer" type="fake_human_publisher" name="fake_human_publisher"/>
 
 </launch>

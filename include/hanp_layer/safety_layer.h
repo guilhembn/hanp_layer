@@ -32,18 +32,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HUMAN_AWARE_SAFETY_LAYER_H
-#define HUMAN_AWARE_SAFETY_LAYER_H
+#ifndef HANP_SAFETY_LAYER_H
+#define HANP_SAFETY_LAYER_H
 
 #include <ros/ros.h>
 #include <costmap_2d/layer.h>
 #include <costmap_2d/layered_costmap.h>
 #include <dynamic_reconfigure/server.h>
 
-#include <human_aware_layers_msgs/TrackedHumans.h>
-#include <human_aware_layers/SafetyLayerConfig.h>
+#include <hanp_layer_msgs/TrackedHumans.h>
+#include <hanp_layer/SafetyLayerConfig.h>
 
-namespace human_aware_layers
+namespace hanp_layer
 {
     class SafetyLayer : public costmap_2d::Layer
     {
@@ -65,14 +65,14 @@ namespace human_aware_layers
 
         private:
         ros::Subscriber humans_sub;
-        void humansUpdate(const human_aware_layers_msgs::TrackedHumansPtr& humans);
-        human_aware_layers_msgs::TrackedHumansPtr lastTrackedHumans;
+        void humansUpdate(const hanp_layer_msgs::TrackedHumansPtr& humans);
+        hanp_layer_msgs::TrackedHumansPtr lastTrackedHumans;
         std::vector<geometry_msgs::PoseStamped> lastTransformedHumans;
 
         std::string global_frame_;
 
-        void reconfigureCB(human_aware_layers::SafetyLayerConfig &config, uint32_t level);
-        dynamic_reconfigure::Server<human_aware_layers::SafetyLayerConfig> *dsrv_;
+        void reconfigureCB(hanp_layer::SafetyLayerConfig &config, uint32_t level);
+        dynamic_reconfigure::Server<hanp_layer::SafetyLayerConfig> *dsrv_;
 
         double size_x, size_y;      // size of grid around human
         double safety_max;          // radius for safetry grid around human

@@ -34,14 +34,14 @@
 
 #include <math.h>
 
-#include<human_aware_layers/safety_layer.h>
+#include<hanp_layer/safety_layer.h>
 #include<geometry_msgs/PoseStamped.h>
 
 // declare the SafetyLayer as a Polygon class
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(human_aware_layers::SafetyLayer, costmap_2d::Layer)
+PLUGINLIB_EXPORT_CLASS(hanp_layer::SafetyLayer, costmap_2d::Layer)
 
-namespace human_aware_layers
+namespace hanp_layer
 {
     SafetyLayer::SafetyLayer() {}
 
@@ -68,8 +68,8 @@ namespace human_aware_layers
         // val = pow(height * (sigmoid * quot), 3);
 
         // set up dynamic reconfigure server
-        dsrv_ = new dynamic_reconfigure::Server<human_aware_layers::SafetyLayerConfig>(nh);
-        dynamic_reconfigure::Server<human_aware_layers::SafetyLayerConfig>::CallbackType cb =
+        dsrv_ = new dynamic_reconfigure::Server<hanp_layer::SafetyLayerConfig>(nh);
+        dynamic_reconfigure::Server<hanp_layer::SafetyLayerConfig>::CallbackType cb =
             boost::bind(&SafetyLayer::reconfigureCB, this, _1, _2);
         dsrv_->setCallback(cb);
 
@@ -213,14 +213,14 @@ namespace human_aware_layers
         }
     }
 
-    void SafetyLayer::humansUpdate(const human_aware_layers_msgs::TrackedHumansPtr& humans)
+    void SafetyLayer::humansUpdate(const hanp_layer_msgs::TrackedHumansPtr& humans)
     {
         // store humans to local variable
         lastTrackedHumans = humans;
     }
 
     // configure the SafetyLayer parameters
-    void SafetyLayer::reconfigureCB(human_aware_layers::SafetyLayerConfig &config, uint32_t level)
+    void SafetyLayer::reconfigureCB(hanp_layer::SafetyLayerConfig &config, uint32_t level)
     {
         enabled_ = config.enabled;
         safety_max = config.safety_max;

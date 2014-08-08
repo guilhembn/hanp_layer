@@ -34,13 +34,13 @@
 
 #include <math.h>
 
-#include<human_aware_layers/visibility_layer.h>
+#include<hanp_layer/visibility_layer.h>
 
 // declare the SafetyLayer as a Polygon class
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(human_aware_layers::VisibilityLayer, costmap_2d::Layer)
+PLUGINLIB_EXPORT_CLASS(hanp_layer::VisibilityLayer, costmap_2d::Layer)
 
-namespace human_aware_layers
+namespace hanp_layer
 {
     VisibilityLayer::VisibilityLayer() {}
 
@@ -67,8 +67,8 @@ namespace human_aware_layers
         //val = distance_cosine * (height + (angle_deviation - M_PI_4) * stretch_back);
 
         // set up dynamic reconfigure server
-        dsrv_ = new dynamic_reconfigure::Server<human_aware_layers::VisibilityLayerConfig>(nh);
-        dynamic_reconfigure::Server<human_aware_layers::VisibilityLayerConfig>::CallbackType cb =
+        dsrv_ = new dynamic_reconfigure::Server<hanp_layer::VisibilityLayerConfig>(nh);
+        dynamic_reconfigure::Server<hanp_layer::VisibilityLayerConfig>::CallbackType cb =
             boost::bind(&VisibilityLayer::reconfigureCB, this, _1, _2);
         dsrv_->setCallback(cb);
     }
@@ -97,13 +97,13 @@ namespace human_aware_layers
         }
     }
 
-    void VisibilityLayer::humansUpdate(const human_aware_layers_msgs::TrackedHumansPtr& humans)
+    void VisibilityLayer::humansUpdate(const hanp_layer_msgs::TrackedHumansPtr& humans)
     {
         // store humans to local variable
     }
 
     // configure the SafetyLayer parameters
-    void VisibilityLayer::reconfigureCB(human_aware_layers::VisibilityLayerConfig &config, uint32_t level)
+    void VisibilityLayer::reconfigureCB(hanp_layer::VisibilityLayerConfig &config, uint32_t level)
     {
         enabled_ = config.enabled;
     }

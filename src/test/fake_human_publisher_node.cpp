@@ -33,7 +33,7 @@
  */
 
 #include <ros/ros.h>
-#include <human_aware_layers_msgs/TrackedHumans.h>
+#include <hanp_layer_msgs/TrackedHumans.h>
 
 #include <math.h>
 
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
     ros::NodeHandle n;
 
-    ros::Publisher humans_pub = n.advertise<human_aware_layers_msgs::TrackedHumans>("human_tracker", 1);
+    ros::Publisher humans_pub = n.advertise<hanp_layer_msgs::TrackedHumans>("human_tracker", 1);
 
     ros::Rate loop_rate(5);
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
         }
 
         // just publish a human with some position, and without velocities
-        human_aware_layers_msgs::TrackedHuman human;
+        hanp_layer_msgs::TrackedHuman human;
 
         human.track_id = 1;
         human.pose.pose.position.x = 1.5;
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
         human.pose.pose.orientation.z = 0.0;
         human.pose.pose.orientation.w = 1.0;
 
-        human_aware_layers_msgs::TrackedHumans humans;
+        hanp_layer_msgs::TrackedHumans humans;
         humans.header.stamp = ros::Time::now();
         humans.header.frame_id = "humans_frame";
         humans.tracks.push_back(human);

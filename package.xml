@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package>
-  <name>human_aware_layers</name>
+  <name>hanp_layer</name>
 
   <version>0.0.1</version>
 
-  <description>adds proxemics layers for tracked humans</description>
+  <description>adds proxemics layers for tracked humans (for human aware navigation planning)</description>
 
   <maintainer email="harmish@laas.fr">harmish khambhaita</maintainer>
 
@@ -12,19 +12,19 @@
 
   <license>BSD</license>
 
-  <!--  <url website >http://wiki.ors.org/human_aware_layers</url>  -->
+  <!--  <url website >http://wiki.ors.org/hanp_layer</url>  -->
 
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>roscpp</build_depend>
   <build_depend>costmap_2d</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
-  <build_depend>human_aware_layers_msgs</build_depend>
+  <build_depend>hanp_layer_msgs</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>costmap_2d</run_depend>
   <run_depend>dynamic_reconfigure</run_depend>
-  <run_depend>human_aware_layers_msgs</run_depend>
+  <run_depend>hanp_layer_msgs</run_depend>
 
   <!--  <test_depend>some_pkg</test_depend>  -->
 

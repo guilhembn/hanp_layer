@@ -34,8 +34,8 @@
 
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
-#include <human_aware_layers/safety_layer.h>
-#include <human_aware_layers/visibility_layer.h>
+#include <hanp_layer/safety_layer.h>
+#include <hanp_layer/visibility_layer.h>
 
 int main( int argc, char* const argv[] )
 {
@@ -72,7 +72,7 @@ TEST_CASE( "safety grid creation test" ) {
                    0,  0,   0,   0,   0,   0,   0,  0, 0 };
 
     // get the grid from safetyLayer
-    human_aware_layers::SafetyLayer safetyLayer;
+    hanp_layer::SafetyLayer safetyLayer;
     auto safetyGrid = safetyLayer.createSafetyGrid(2.0, 0.5);
 
     // first check the size
@@ -109,7 +109,7 @@ TEST_CASE( "visibility grid creation test" ) {
                    0,  0,   0,   0,   0, 0, 0, 0, 0 };
 
     // get the grid from safetyLayer
-    human_aware_layers::VisibilityLayer visibilityLayer;
+    hanp_layer::VisibilityLayer visibilityLayer;
     auto visibilityGrid = visibilityLayer.createVisibilityGrid(2.0, 0.5);
 
     // first check the size

@@ -1,6 +1,6 @@
 <class_libraries>
-  <library path="lib/libhuman_aware_layers">
-    <class type="human_aware_layers::SafetyLayer" base_class_type="costmap_2d::Layer">
+  <library path="lib/libhanp_layer">
+    <class type="hanp_layer::SafetyLayer" base_class_type="costmap_2d::Layer">
       <description>adds proxemics costs around human for safety.</description>
     </class>
   </library>

@@ -32,16 +32,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HUMAN_AWARE_POSTURES_H
-#define HUMAN_AWARE_POSTURES_H
+#ifndef HANP_VISIBILITY_LAYER_H
+#define HANP_VISIBILITY_LAYER_H
 
-namespace human_aware_layers
+#include <ros/ros.h>
+#include <costmap_2d/layer.h>
+#include <costmap_2d/layered_costmap.h>
+#include <dynamic_reconfigure/server.h>
+
+#include <hanp_layer_msgs/TrackedHumans.h>
+#include <hanp_layer/VisibilityLayerConfig.h>
+
+namespace hanp_layer
 {
-    // enumerator for different human postures
-    enum HumanPosture {
-        STANDING,
-        SITTING,
-        WALKING
+    class VisibilityLayer : public costmap_2d::Layer
+    {
+        public:
+        VisibilityLayer();
+
+        // onInitialize is called when tf_, name_, and layered_costmap_ are already set
+        virtual void onInitialize();
+
+        // method for updating internal map f this layer
+        virtual void updateBounds(double origin_x, double origin_y, double origin_yaw,
+                                double* min_x, double* min_y, double* max_x, double* max_y);
+
+        // method for applyting changes in this layer to global costmap
+        virtual void updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j,
+                               int max_i, int max_j);
+
+        unsigned char* createVisibilityGrid(double radius,  double resolution = 0.5, double look_x = 1.0, double look_y = 0.0);
+
+        private:
+        ros::Subscriber humans_sub;
+        void humansUpdate(const hanp_layer_msgs::TrackedHumansPtr& humans);
+
+        void reconfigureCB(hanp_layer::VisibilityLayerConfig &config, uint32_t level);
+        dynamic_reconfigure::Server<hanp_layer::VisibilityLayerConfig> *dsrv_;
+
+        //std::map<HumanPosture, double[]> safetyGrids;
     };
 }
 

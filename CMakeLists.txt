@@ -13,13 +13,13 @@ endif()
 
 
 cmake_minimum_required(VERSION 2.8.3)
-project(human_aware_layers)
+project(hanp_layer)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   costmap_2d
   dynamic_reconfigure
-  human_aware_layers_msgs
+  hanp_layer_msgs
 )
 
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -58,12 +58,12 @@ catkin_package(
   INCLUDE_DIRS
     include
   LIBRARIES
-    human_aware_layers
+    hanp_layer
   CATKIN_DEPENDS
     roscpp
     costmap_2d
     dynamic_reconfigure
-    human_aware_layers_msgs
+    hanp_layer_msgs
 #  DEPENDS system_lib
 )
 
@@ -77,24 +77,24 @@ include_directories(
 )
 
 ## declare a cpp library
-add_library(human_aware_layers
+add_library(hanp_layer
   src/safety_layer.cpp
   src/visibility_layer.cpp
 )
 
 ## declare a cpp executable
-# add_executable(human_aware_layers_node
-#   src/human_aware_layers_node.cpp
+# add_executable(hanp_layer_node
+#   src/hanp_layer_node.cpp
 # )
 
 ## cmake target dependencies of the executable/library
-# add_dependencies(human_aware_layers_node human_aware_layers_generate_messages_cpp)
+# add_dependencies(hanp_layer_node hanp_layer_generate_messages_cpp)
 
 # build config headers
-add_dependencies(human_aware_layers human_aware_layers_gencfg)
+add_dependencies(hanp_layer hanp_layer_gencfg)
 
 ## libraries to link a library or executable target against
-target_link_libraries(human_aware_layers
+target_link_libraries(hanp_layer
   ${catkin_LIBRARIES}
 )
 
@@ -109,7 +109,7 @@ target_link_libraries(human_aware_layers
 # )
 
 ## executables and/or libraries for installation
-# install(TARGETS human_aware_layers human_aware_layers_node
+# install(TARGETS hanp_layer hanp_layer_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -146,7 +146,7 @@ target_link_libraries(fake_human_publisher
 )
 
 ## add catch based cpp test target
-catkin_add_catchtest(${PROJECT_NAME}-test src/test/test_human_aware_layers.cpp)
+catkin_add_catchtest(${PROJECT_NAME}-test src/test/test_hanp_layer.cpp)
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
 endif()

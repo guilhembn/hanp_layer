@@ -77,10 +77,11 @@ namespace hanp_layer
         void reconfigureCB(hanp_layer::HANPLayerConfig &config, uint32_t level);
         dynamic_reconfigure::Server<hanp_layer::HANPLayerConfig> *dsrv_;
 
-        double size_x, size_y;      // size of grid around human
-        double safety_max;          // radius for safetry grid around human
-        double resolution;          // resolution of the map, copied from master map
-        ros::Duration human_tracking_delay;    // maximum time to wait before considering human_tracking is no more available
+        double size_x, size_y;              // size of grid around human
+        bool use_safety, use_visibility;    // whether to use these layers
+        double safety_max, visibility_max;  // radius for safetry grid around human
+        double resolution;                  // resolution of the map, copied from master map
+        ros::Duration human_tracking_delay; // maximum time to wait before considering human_tracking is no more available
         unsigned char* safety_grid; // variable to store created safety grid
         double last_min_x, last_min_y, last_max_x, last_max_y;  // last updated grid values
 

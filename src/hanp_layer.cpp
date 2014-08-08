@@ -85,42 +85,33 @@ namespace hanp_layer
     void HANPLayer::updateBounds(double origin_x, double origin_y, double origin_yaw,
                                     double* min_x, double* min_y, double* max_x, double* max_y)
     {
-        // clear last data
-        lastTransformedHumans.clear();
-
         // check for enable and availability of human tracking before continuing
         if(!enabled_
            || !lastTrackedHumans
            || ((ros::Time::now() - lastTrackedHumans->header.stamp) > human_tracking_delay)
+           || !(use_safety || use_visibility)
           )
         {
+            if(lastTransformedHumans.size() != 0)
+            {
+                lastTransformedHumans.clear();
+                *min_x = last_min_x;
+                *min_y = last_min_y;
+                *max_x = last_max_x;
+                *max_y = last_max_y;
+            }
             return;
         }
+
+        // clear last data
+        lastTransformedHumans.clear();
 
         // TODO: use locking for lastTrackedHumans
         // check if frame transformation is still possible
         auto humans_header = lastTrackedHumans->header;
 
-        /*bool transformOK = false;
-        try
-        {
-            transformOK = tf_->waitForTransform(global_frame_, lastTrackedHumans->header.frame_id,
-                                      lastTrackedHumans->header.stamp, ros::Duration(0.1));
-        }
-        catch(tf::TransformException& ex)
-        {
-            ROS_ERROR_NAMED("hanp_layer", "tf exception: %s", ex.what());
-        }
-
-        if(!transformOK)
-        {
-            ROS_ERROR_NAMED("hanp_layer", "can't transform from %s to %s at %f",
-                            global_frame_.c_str(), lastTrackedHumans->header.frame_id.c_str(),
-                            lastTrackedHumans->header.stamp.toSec());
-            return;
-        }*/
-
-        double min_x_, min_y_, max_x_, max_y_;  // limits for the costmap update
+        // copy limits for the costmap to local variables
+        double min_x_ = *min_x, min_y_ = *min_y, max_x_ = *max_x, max_y_ = *max_y;
         // transform each human into costmap frame and calculate bounds for costmap
         //lastTransformedHumans = new geometry_msgs::PoseStamped[lastTrackedHumans->tracks.size()]
         for(auto &human : lastTrackedHumans->tracks)
@@ -144,12 +135,12 @@ namespace hanp_layer
 
             // now calculate costmap bounds
             // note: bouds should be returned in meters, not in grid-points
-            auto size_x = safety_max, size_y = size_x;
+            auto size_x = std::max(safety_max, visibility_max), size_y = size_x;
 
-            min_x_ = std::min(*min_x, out_human.pose.position.x - size_x);
-            min_y_ = std::min(*min_y, out_human.pose.position.y - size_y);
-            max_x_ = std::max(*max_x, out_human.pose.position.x + size_x);
-            max_y_ = std::max(*max_y, out_human.pose.position.y + size_y);
+            min_x_ = std::min(min_x_, out_human.pose.position.x - size_x);
+            min_y_ = std::min(min_y_, out_human.pose.position.y - size_y);
+            max_x_ = std::max(max_x_, out_human.pose.position.x + size_x);
+            max_y_ = std::max(max_y_, out_human.pose.position.y + size_y);
 
             lastTransformedHumans.push_back(out_human);
         }
@@ -189,26 +180,56 @@ namespace hanp_layer
             }
             //ROS_INFO_NAMED("hanp_layer", "human x:%d y:%d", cell_x, cell_y);
 
-            // apply safety grid according to position of each human
-            auto size_x = (int)(safety_max / resolution), size_y = size_x;
-
-            // by convention x is number of columns, y is number of rows
-            for(int y = 0; y <= 2 * size_y; y++)
+            if(use_safety)
             {
-                for(int x = 0; x <= 2 * size_x; x++)
-                {
-                    // add to current cost
-                    auto cost = (int)master_grid.getCost(x + cell_x - size_x, y + cell_y - size_y)
-                        + (int)safety_grid[x + ((2 * size_x + 1) * y)];
-                    // detect overflow
-                    if(cost > (int)costmap_2d::LETHAL_OBSTACLE)
-                    {
-                        cost = costmap_2d::LETHAL_OBSTACLE;
-                    }
+                // apply safety grid according to position of each human
+                auto size_x = (int)(safety_max / resolution), size_y = size_x;
 
-                    master_grid.setCost(x + cell_x - size_x, y + cell_y - size_y, (unsigned int)cost);
+                // by convention x is number of columns, y is number of rows
+                for(int y = 0; y <= 2 * size_y; y++)
+                {
+                    for(int x = 0; x <= 2 * size_x; x++)
+                    {
+                        // add to current cost
+                        auto cost = (int)master_grid.getCost(x + cell_x - size_x, y + cell_y - size_y)
+                            + (int)safety_grid[x + ((2 * size_x + 1) * y)];
+                        // detect overflow
+                        if(cost > (int)costmap_2d::LETHAL_OBSTACLE)
+                        {
+                            cost = costmap_2d::LETHAL_OBSTACLE;
+                        }
+
+                        master_grid.setCost(x + cell_x - size_x, y + cell_y - size_y, (unsigned int)cost);
+                    }
                 }
             }
+
+            if(use_visibility)
+            {
+                // calculate visibility grid
+                auto visibility_grid = createVisibilityGrid(visibility_max, resolution, costmap_2d::LETHAL_OBSTACLE);
+
+                // apply the visibility grid
+                auto size_x = (int)(visibility_max / resolution), size_y = size_x;
+
+                for(int y = 0; y <= 2 * size_y; y++)
+                {
+                    for(int x = 0; x <= 2 * size_x; x++)
+                    {
+                        // add to current cost
+                        auto cost = (int)master_grid.getCost(x + cell_x - size_x, y + cell_y - size_y)
+                            + (int)visibility_grid[x + ((2 * size_x + 1) * y)];
+                        // detect overflow
+                        if(cost > (int)costmap_2d::LETHAL_OBSTACLE)
+                        {
+                            cost = costmap_2d::LETHAL_OBSTACLE;
+                        }
+
+                        master_grid.setCost(x + cell_x - size_x, y + cell_y - size_y, (unsigned int)cost);
+                    }
+                }
+            }
+
         }
     }
 
@@ -222,7 +243,13 @@ namespace hanp_layer
     void HANPLayer::reconfigureCB(hanp_layer::HANPLayerConfig &config, uint32_t level)
     {
         enabled_ = config.enabled;
-        safety_max = config.safety_max;
+
+        use_safety = config.use_safety;
+        use_visibility= config.use_visibility;
+
+        safety_max = use_safety ? config.safety_max : 0.0;
+        visibility_max = use_visibility ? config.visibility_max : 0.0;
+
         human_tracking_delay = ros::Duration(config.human_tracking_delay);
 
         // re-create safety grid, with changed safety_max and current resolution

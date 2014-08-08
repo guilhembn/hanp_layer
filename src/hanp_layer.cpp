@@ -206,7 +206,6 @@ namespace hanp_layer
                         cost = costmap_2d::LETHAL_OBSTACLE;
                     }
 
-
                     master_grid.setCost(x + cell_x - size_x, y + cell_y - size_y, (unsigned int)cost);
                 }
             }
@@ -229,13 +228,13 @@ namespace hanp_layer
         // re-create safety grid, with changed safety_max and current resolution
         // TODO: what if resolution changes
         resolution = layered_costmap_->getCostmap()->getResolution();
-        safety_grid = createSafetyGrid(safety_max, resolution);
+        safety_grid = createSafetyGrid(safety_max, resolution, costmap_2d::LETHAL_OBSTACLE);
     }
 
     // creates safety grid around the human for different postures
     // radius in meters
     // resolution in meters/cell, default is 0.5
-    unsigned char* HANPLayer::createSafetyGrid(double safety_max, double resolution)
+    unsigned char* HANPLayer::createSafetyGrid(double safety_max, double resolution, unsigned int max_value)
     {
         if (safety_max < 0 || resolution < 0)
         {
@@ -274,8 +273,8 @@ namespace hanp_layer
                 if (sqrt((x * x) + (y * y)) <= (safety_max / resolution))
                 {
                     safetyGrid[index_1 + (index_2 * y) + x] =
-                        (unsigned char)(((cos(r * x) +1) * (cos(r * y) +1) * costmap_2d::LETHAL_OBSTACLE / 4) + 0.5);
-                    // multiply by LETHAL_OBSTACLE to get full value range from 0-LETHAL_OBSTACLE
+                        (unsigned char)(((cos(r * x) +1) * (cos(r * y) +1) * max_value / 4) + 0.5);
+                    // multiply by max_value to get full value range from 0-max_value
                     // addint 0.5 at the end because converstain of u_int trancates
                 }
                 else
@@ -294,7 +293,7 @@ namespace hanp_layer
     // radius in meters
     // resolution in meters/cell, default is 0.5
     unsigned char* HANPLayer::createVisibilityGrid(double visibilityMax, double resolution,
-                                                         double look_x, double look_y)
+                                                   unsigned int max_value, double look_x, double look_y)
     {
         if (visibilityMax < 0 || resolution < 0)
         {

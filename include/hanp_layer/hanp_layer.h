@@ -61,9 +61,10 @@ namespace hanp_layer
         virtual void updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j,
                                int max_i, int max_j);
 
-        unsigned char* createSafetyGrid(double radius,  double resolution=0.05);
+        unsigned char* createSafetyGrid(double radius,  double resolution=0.05, unsigned int max_value=255);
 
-        unsigned char* createVisibilityGrid(double radius,  double resolution = 0.5, double look_x = 1.0, double look_y = 0.0);
+        unsigned char* createVisibilityGrid(double radius,  double resolution = 0.5,
+                                            unsigned int max_value=255, double look_x = 1.0, double look_y = 0.0);
 
         private:
         ros::Subscriber humans_sub;

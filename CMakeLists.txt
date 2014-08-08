@@ -49,8 +49,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 # add dynamic reconfigure configs
 generate_dynamic_reconfigure_options(
-  cfg/SafetyLayer.cfg
-  cfg/VisibilityLayer.cfg
+  cfg/HANPLayer.cfg
 )
 
 ## declare catkin package
@@ -78,8 +77,7 @@ include_directories(
 
 ## declare a cpp library
 add_library(hanp_layer
-  src/safety_layer.cpp
-  src/visibility_layer.cpp
+  src/hanp_layer.cpp
 )
 
 ## declare a cpp executable

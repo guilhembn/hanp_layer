@@ -32,8 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HANP_SAFETY_LAYER_H
-#define HANP_SAFETY_LAYER_H
+#ifndef HANP_LAYER_H
+#define HANP_LAYER_H
 
 #include <ros/ros.h>
 #include <costmap_2d/layer.h>
@@ -41,14 +41,14 @@
 #include <dynamic_reconfigure/server.h>
 
 #include <hanp_layer_msgs/TrackedHumans.h>
-#include <hanp_layer/SafetyLayerConfig.h>
+#include <hanp_layer/HANPLayerConfig.h>
 
 namespace hanp_layer
 {
-    class SafetyLayer : public costmap_2d::Layer
+    class HANPLayer : public costmap_2d::Layer
     {
         public:
-        SafetyLayer();
+        HANPLayer();
 
         // onInitialize is called when tf_, name_, and layered_costmap_ are already set
         virtual void onInitialize();
@@ -63,6 +63,8 @@ namespace hanp_layer
 
         unsigned char* createSafetyGrid(double radius,  double resolution=0.05);
 
+        unsigned char* createVisibilityGrid(double radius,  double resolution = 0.5, double look_x = 1.0, double look_y = 0.0);
+
         private:
         ros::Subscriber humans_sub;
         void humansUpdate(const hanp_layer_msgs::TrackedHumansPtr& humans);
@@ -71,8 +73,8 @@ namespace hanp_layer
 
         std::string global_frame_;
 
-        void reconfigureCB(hanp_layer::SafetyLayerConfig &config, uint32_t level);
-        dynamic_reconfigure::Server<hanp_layer::SafetyLayerConfig> *dsrv_;
+        void reconfigureCB(hanp_layer::HANPLayerConfig &config, uint32_t level);
+        dynamic_reconfigure::Server<hanp_layer::HANPLayerConfig> *dsrv_;
 
         double size_x, size_y;      // size of grid around human
         double safety_max;          // radius for safetry grid around human

@@ -191,8 +191,8 @@ namespace hanp_layer
                     for(int x = 0; x <= 2 * size_x; x++)
                     {
                         // add to current cost
-                        auto cost = (int)master_grid.getCost(x + cell_x - size_x, y + cell_y - size_y)
-                            + (int)safety_grid[x + ((2 * size_x + 1) * y)];
+                        auto cost = (double)master_grid.getCost(x + cell_x - size_x, y + cell_y - size_y)
+                            + (double)(safety_grid[x + ((2 * size_x + 1) * y)] * safety_weight);
                         // detect overflow
                         if(cost > (int)costmap_2d::LETHAL_OBSTACLE)
                         {
@@ -217,8 +217,8 @@ namespace hanp_layer
                     for(int x = 0; x <= 2 * size_x; x++)
                     {
                         // add to current cost
-                        auto cost = (int)master_grid.getCost(x + cell_x - size_x, y + cell_y - size_y)
-                            + (int)visibility_grid[x + ((2 * size_x + 1) * y)];
+                        auto cost = (double)master_grid.getCost(x + cell_x - size_x, y + cell_y - size_y)
+                            + (double)(visibility_grid[x + ((2 * size_x + 1) * y)] * visibility_weight);
                         // detect overflow
                         if(cost > (int)costmap_2d::LETHAL_OBSTACLE)
                         {
@@ -249,6 +249,25 @@ namespace hanp_layer
 
         safety_max = use_safety ? config.safety_max : 0.0;
         visibility_max = use_visibility ? config.visibility_max : 0.0;
+
+        // first copy the weights
+        auto safety_weight_val = use_safety ? config.safety_weight : 0.0;
+        auto visibility_weight_val = use_visibility ? config.visibility_weight : 0.0;
+
+        // calculate effective weights, only when required
+        auto total_weight = safety_weight_val + visibility_weight_val;
+        if (total_weight > 0.0)
+        {
+            safety_weight = safety_weight_val / total_weight;
+            visibility_weight = visibility_weight_val / total_weight;
+        }
+        else
+        {
+            safety_weight = visibility_weight = 0.0;
+        }
+
+        ROS_DEBUG_NAMED("hanp_layer", "safety_weight = %f, visibility_weight = %f",
+                        safety_weight, visibility_weight);
 
         human_tracking_delay = ros::Duration(config.human_tracking_delay);
 

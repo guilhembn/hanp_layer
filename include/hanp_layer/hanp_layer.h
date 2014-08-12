@@ -80,6 +80,7 @@ namespace hanp_layer
         double size_x, size_y;              // size of grid around human
         bool use_safety, use_visibility;    // whether to use these layers
         double safety_max, visibility_max;  // radius for safetry grid around human
+        double safety_weight, visibility_weight;    // weights for weited-sum of costs
         double resolution;                  // resolution of the map, copied from master map
         ros::Duration human_tracking_delay; // maximum time to wait before considering human_tracking is no more available
         unsigned char* safety_grid; // variable to store created safety grid

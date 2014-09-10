@@ -1,6 +1,7 @@
 <launch>
     <!-- set logging level -->
-    <!--env name="ROSCONSOLE_CONFIG_FILE" value="$(find navigation_morse)/launch/custom_rosconsole.conf"/-->
+    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find hanp_layer)/launch/custom_rosconsole.conf"/>
+
     <!--  publish fixed frame transformations  -->
     <node pkg="tf" type="static_transform_publisher" name="humans_frmae_transform"
           args="0 0 0 0 0 0 /map /humans_frame 100"/>

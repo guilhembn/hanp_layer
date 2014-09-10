@@ -116,6 +116,13 @@ namespace hanp_layer
         //lastTransformedHumans = new geometry_msgs::PoseStamped[lastTrackedHumans->tracks.size()]
         for(auto &human : lastTrackedHumans->tracks)
         {
+            // don't consider this human if walking
+            if (sqrt(human.twist.twist.linear.x * human.twist.twist.linear.x  +
+                human.twist.twist.linear.y * human.twist.twist.linear.y) >= walking_velocity )
+            {
+                continue;
+            }
+
             // fist transform human positions
             geometry_msgs::PoseStamped in_human, out_human;
             in_human.header = humans_header;
@@ -265,6 +272,8 @@ namespace hanp_layer
         {
             safety_weight = visibility_weight = 0.0;
         }
+
+        walking_velocity = config.walking_velocity;
 
         ROS_DEBUG_NAMED("hanp_layer", "safety_weight = %f, visibility_weight = %f",
                         safety_weight, visibility_weight);

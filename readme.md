@@ -1,7 +1,7 @@
 build
 -----
-* you need to have ...
+* catkin_make
 
 to do
 -----
-* everything
+*

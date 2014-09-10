@@ -82,6 +82,7 @@ namespace hanp_layer
         double safety_max, visibility_max;  // radius for safetry grid around human
         double safety_weight, visibility_weight;    // weights for weited-sum of costs
         double resolution;                  // resolution of the map, copied from master map
+        double walking_velocity;            // above this velocity human will be considered walking
         ros::Duration human_tracking_delay; // maximum time to wait before considering human_tracking is no more available
         unsigned char* safety_grid; // variable to store created safety grid
         double last_min_x, last_min_y, last_max_x, last_max_y;  // last updated grid values

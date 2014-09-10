@@ -36,6 +36,7 @@
 #define HANP_LAYER_H
 
 #include <ros/ros.h>
+#include <tf/tf.h>
 #include <costmap_2d/layer.h>
 #include <costmap_2d/layered_costmap.h>
 #include <dynamic_reconfigure/server.h>

@@ -214,7 +214,9 @@ namespace hanp_layer
             if(use_visibility)
             {
                 // calculate visibility grid
-                auto visibility_grid = createVisibilityGrid(visibility_max, resolution, costmap_2d::LETHAL_OBSTACLE);
+                double yaw = tf::getYaw(human.pose.orientation);
+                auto visibility_grid = createVisibilityGrid(visibility_max, resolution,
+                                                            costmap_2d::LETHAL_OBSTACLE, cos(yaw), sin(yaw));
 
                 // apply the visibility grid
                 auto size_x = (int)(visibility_max / resolution), size_y = size_x;

@@ -17,6 +17,7 @@ project(hanp_layer)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  tf
   costmap_2d
   dynamic_reconfigure
   hanp_layer_msgs
@@ -60,6 +61,7 @@ catkin_package(
     hanp_layer
   CATKIN_DEPENDS
     roscpp
+    tf
     costmap_2d
     dynamic_reconfigure
     hanp_layer_msgs

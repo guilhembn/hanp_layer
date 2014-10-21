@@ -46,7 +46,7 @@ namespace hanp_layer
     HANPLayer::HANPLayer() {}
 
     // onInitialize is called just after setting tf_, name_, and layered_costmap_
-    // layered_costmap_ is the costmap which plugin gets from the map_server
+    // layered_costmap_ is the costmap which this plugin gets from the map_server
     void HANPLayer::onInitialize()
     {
         ros::NodeHandle nh("~/" + name_);
@@ -56,16 +56,6 @@ namespace hanp_layer
         std::string humans_topic;
         nh.param("humans_topic", humans_topic, std::string("/human_tracker"));
         humans_sub = nh.subscribe(humans_topic, 1, &HANPLayer::humansUpdate, this);
-
-        // create satic grids according to human posture, standing, sitting, walking
-        // to calcuate cost use a sigmoid function
-
-        // for safety
-        // create sigmoid function up to radius
-        // distance is distance to point from human, radis is where we want to end the function
-        // sigmoid = cos(distance / radius * M_PI_2) + 0;
-        // quot = 1 / (0.6 + distance );
-        // val = pow(height * (sigmoid * quot), 3);
 
         // set up dynamic reconfigure server
         dsrv_ = new dynamic_reconfigure::Server<hanp_layer::HANPLayerConfig>(nh);
@@ -187,6 +177,11 @@ namespace hanp_layer
             }
             //ROS_INFO_NAMED("hanp_layer", "human x:%d y:%d", cell_x, cell_y);
 
+            // general algorithm is to
+            // create satic grids according to human posture, standing, sitting, walking
+            // to calcuate cost use a sigmoid function
+            // however 'sitting' posture is not implemented yet
+
             if(use_safety)
             {
                 // apply safety grid according to position of each human
@@ -289,8 +284,8 @@ namespace hanp_layer
     }
 
     // creates safety grid around the human for different postures
-    // radius in meters
-    // resolution in meters/cell, default is 0.5
+    // radius is in meters
+    // resolution is in meters/cell, default is 0.5
     unsigned char* HANPLayer::createSafetyGrid(double safety_max, double resolution, unsigned int max_value)
     {
         if (safety_max < 0 || resolution < 0)
@@ -300,10 +295,10 @@ namespace hanp_layer
         }
 
         // size of the grid depends on the resolution
-        // array should be of 'round' shape, since it not possible we use square and put 0 otherwise
+        // array should be of 'round' shape. since that is not possible, we use square and put 0 otherwise
         auto size_x = (int)(safety_max / resolution), size_y = size_x;
 
-        // populate array using safety function
+        // create safety grid array using safety function (a sigmoid function)
         //  r = pi/safety_max
         //  safety(x, y) =
         //      (cos(r * x) + 1)(cos(r * y) +1) / 4     if dist(x,y) <= safety_max
@@ -362,7 +357,7 @@ namespace hanp_layer
         // array should be of 'round' shape, since it not possible we use square and put 0 otherwise
         auto size_x = (int)(visibilityMax / resolution), size_y = size_x;
 
-        // populate array using visibility function
+        // create visibility grid array using visibility function
         //  r = pi/visibilityMax
         //  g(i,j) = cos(r x i + 1) cos(r x j + 1) / 4
         //  Δψ = | arccos(Pi,j . L) |

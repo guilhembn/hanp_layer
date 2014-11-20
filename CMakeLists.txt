@@ -92,12 +92,12 @@ install(DIRECTORY include/${PROJECT_NAME}/
 ## testing ##
 
 ## add helpers for testing
-add_executable(fake_human_publisher
-  src/test/fake_human_publisher_node.cpp
-)
-target_link_libraries(fake_human_publisher
-  ${catkin_LIBRARIES}
-)
+#add_executable(fake_human_publisher
+#  src/test/fake_human_publisher_node.cpp
+#)
+#target_link_libraries(fake_human_publisher
+#  ${catkin_LIBRARIES}
+#)
 
 ## add catch based cpp test target
 if(COMMAND catkin_add_catchtest)

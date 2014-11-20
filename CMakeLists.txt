@@ -146,9 +146,11 @@ target_link_libraries(fake_human_publisher
 )
 
 ## add catch based cpp test target
-catkin_add_catchtest(${PROJECT_NAME}-test src/test/test_hanp_layer.cpp)
-if(TARGET ${PROJECT_NAME}-test)
-  target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
+if(COMMAND catkin_add_catchtest)
+  catkin_add_catchtest(${PROJECT_NAME}-test src/test/test_hanp_layer.cpp)
+  if(TARGET ${PROJECT_NAME}-test)
+    target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
+  endif()
 endif()
 
 ## add nosetest file folders

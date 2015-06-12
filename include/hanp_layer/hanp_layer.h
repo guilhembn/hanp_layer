@@ -41,7 +41,7 @@
 #include <costmap_2d/layered_costmap.h>
 #include <dynamic_reconfigure/server.h>
 
-#include <hanp_layer_msgs/TrackedHumans.h>
+#include <hanp_msgs/TrackedHumans.h>
 #include <hanp_layer/HANPLayerConfig.h>
 
 namespace hanp_layer
@@ -69,8 +69,8 @@ namespace hanp_layer
 
         private:
         ros::Subscriber humans_sub;
-        void humansUpdate(const hanp_layer_msgs::TrackedHumansPtr& humans);
-        hanp_layer_msgs::TrackedHumansPtr lastTrackedHumans;
+        void humansUpdate(const hanp_msgs::TrackedHumansPtr& humans);
+        hanp_msgs::TrackedHumansPtr lastTrackedHumans;
         std::vector<geometry_msgs::PoseStamped> lastTransformedHumans;
 
         std::string global_frame_;

@@ -237,7 +237,7 @@ namespace hanp_layer
         }
     }
 
-    void HANPLayer::humansUpdate(const hanp_layer_msgs::TrackedHumansPtr& humans)
+    void HANPLayer::humansUpdate(const hanp_msgs::TrackedHumansPtr& humans)
     {
         // store humans to local variable
         lastTrackedHumans = humans;

@@ -33,7 +33,7 @@
  */
 
 #include <ros/ros.h>
-#include <hanp_layer_msgs/TrackedHumans.h>
+#include <hanp_msgs/TrackedHumans.h>
 
 #include <math.h>
 
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
     ros::NodeHandle n;
 
-    ros::Publisher humans_pub = n.advertise<hanp_layer_msgs::TrackedHumans>("human_tracker", 1);
+    ros::Publisher humans_pub = n.advertise<hanp_msgs::TrackedHumans>("human_tracker", 1);
 
     ros::Rate loop_rate(5);
 

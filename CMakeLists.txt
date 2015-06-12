@@ -20,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   costmap_2d
   dynamic_reconfigure
-  hanp_layer_msgs
+  hanp_msgs
 )
 
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -64,7 +64,7 @@ catkin_package(
     tf
     costmap_2d
     dynamic_reconfigure
-    hanp_layer_msgs
+    hanp_msgs
 #  DEPENDS system_lib
 )
 

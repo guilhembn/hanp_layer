@@ -2,17 +2,17 @@
 <package>
   <name>hanp_layer</name>
 
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 
   <description>adds proxemics layers for tracked humans (for human aware navigation planning)</description>
 
+  <!--  <author email="harmish@laas.fr">harmish khambhaita</author>  -->
   <maintainer email="harmish@laas.fr">harmish khambhaita</maintainer>
-
-  <!--  <author email="author_email">author_name</author>  -->
 
   <license>BSD</license>
 
-  <!--  <url website >http://wiki.ors.org/hanp_layer</url>  -->
+  <url type="website">https://github.com/harmishhk/hanp_layer</url>
+  <url type="bugtracker">https://github.com/harmishhk/hanp_layer/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -28,14 +28,7 @@
   <run_depend>dynamic_reconfigure</run_depend>
   <run_depend>hanp_msgs</run_depend>
 
-  <!--  <test_depend>some_pkg</test_depend>  -->
-
-  <!--  <conflict>some_pkg</conflict>  -->
-
-  <!--  <replace>some_pkg</replace>  -->
-
   <export>
-    <!-- <metapackage/> -->
     <costmap_2d plugin="${prefix}/costmap_plugins.xml" />
   </export>
 </package>

@@ -23,31 +23,6 @@ find_package(catkin REQUIRED COMPONENTS
   hanp_msgs
 )
 
-# find_package(Boost REQUIRED COMPONENTS system)
-
-## add message, serviece and action files
-
-# add_message_files( DIRECTORY msg
-#   FILES
-#   Message1.msg
-# )
-
-# add_service_files( DIRECTORY srv
-#   FILES
-#   Service1.srv
-# )
-
-# add_action_files( DIRECTORY action
-#   FILES
-#   Action1.action
-# )
-
-## generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   packages containing msgs
-# )
-
 # add dynamic reconfigure configs
 generate_dynamic_reconfigure_options(
   cfg/HANPLayer.cfg
@@ -65,7 +40,6 @@ catkin_package(
     costmap_2d
     dynamic_reconfigure
     hanp_msgs
-#  DEPENDS system_lib
 )
 
 
@@ -82,10 +56,6 @@ add_library(hanp_layer
   src/hanp_layer.cpp
 )
 
-## declare a cpp executable
-# add_executable(hanp_layer_node
-#   src/hanp_layer_node.cpp
-# )
 
 ## cmake target dependencies of the executable/library
 # add_dependencies(hanp_layer_node hanp_layer_generate_messages_cpp)
@@ -102,12 +72,6 @@ target_link_libraries(hanp_layer
 
 ## install ##
 
-## executable scripts (python etc.) for installation
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
 ## executables and/or libraries for installation
 install(TARGETS hanp_layer
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -120,18 +84,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
 )
-
-## other files for installation (launch, data, bag files)
-# foreach(dir launch data bags)
-#    install(DIRECTORY ${dir}/
-#       DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
-# endforeach(dir)
-
-## other files for installation
-# install(FILES
-#   # myfile1
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
 
 
 
@@ -152,6 +104,3 @@ if(COMMAND catkin_add_catchtest)
     target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
   endif()
 endif()
-
-## add nosetest file folders
-# catkin_add_nosetests(test)

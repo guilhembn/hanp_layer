@@ -45,7 +45,6 @@ namespace hanp_layer
     void HANPLayer::onInitialize()
     {
         ros::NodeHandle nh("~/" + name_);
-        //current_ = true; //TODO: find out use of this variable
 
         // subscribe to human positions
         std::string humans_topic;
@@ -64,9 +63,12 @@ namespace hanp_layer
 
         // initialize last bounds
         last_min_x = last_min_y = last_max_x = last_max_y = 0.0;
+
+        // declare current state of layer up-to-date
+        current_ = true;
     }
 
-    // method for updating internal map f this layer
+    // method for updating internal map of this layer
     void HANPLayer::updateBounds(double origin_x, double origin_y, double origin_yaw,
                                     double* min_x, double* min_y, double* max_x, double* max_y)
     {
@@ -110,11 +112,13 @@ namespace hanp_layer
 
             // fist transform human positions
             geometry_msgs::PoseStamped in_human, out_human;
-            in_human.header = humans_header;
+            in_human.header.stamp = humans_header.stamp;
             in_human.header.frame_id = humans_header.frame_id;
             in_human.pose = human.pose.pose;
             try
             {
+                // lookup and transform in_human in global_frame_
+                // at time found in in_human
                 tf_->transformPose(global_frame_, in_human, out_human);
             }
             catch(tf::TransformException& ex)
@@ -273,7 +277,6 @@ namespace hanp_layer
         human_tracking_delay = ros::Duration(config.human_tracking_delay);
 
         // re-create safety grid, with changed safety_max and current resolution
-        // TODO: what if resolution changes
         resolution = layered_costmap_->getCostmap()->getResolution();
         safety_grid = createSafetyGrid(safety_max, resolution, costmap_2d::LETHAL_OBSTACLE);
     }

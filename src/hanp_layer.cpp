@@ -119,7 +119,7 @@ namespace hanp_layer
             }
             catch(tf::TransformException& ex)
             {
-                ROS_ERROR_NAMED("hanp_layer", "tf exception while transforming human pose in \\%s frame: %s",
+                ROS_ERROR("hanp_layer: tf exception while transforming human pose in \\%s frame: %s",
                                 global_frame_.c_str(), ex.what());
                 lastTransformedHumans.clear();
                 return;
@@ -166,11 +166,11 @@ namespace hanp_layer
             unsigned int cell_x, cell_y;
             if(!master_grid.worldToMap(human.pose.position.x, human.pose.position.y, cell_x, cell_y))
             {
-                ROS_ERROR_NAMED("hanp_layer", "no world coordinates for human at x:%f y:%f",
+                ROS_ERROR("hanp_layer: no world coordinates for human at x:%f y:%f",
                                human.pose.position.x, human.pose.position.y);
                 continue;
             }
-            //ROS_INFO_NAMED("hanp_layer", "human x:%d y:%d", cell_x, cell_y);
+            //ROS_INFO("hanp_layer: human x:%d y:%d", cell_x, cell_y);
 
             // general algorithm is to
             // create satic grids according to human posture, standing, sitting, walking
@@ -267,7 +267,7 @@ namespace hanp_layer
 
         walking_velocity = config.walking_velocity;
 
-        ROS_DEBUG_NAMED("hanp_layer", "safety_weight = %f, visibility_weight = %f",
+        ROS_DEBUG("hanp_layer: safety_weight = %f, visibility_weight = %f",
                         safety_weight, visibility_weight);
 
         human_tracking_delay = ros::Duration(config.human_tracking_delay);
@@ -285,7 +285,7 @@ namespace hanp_layer
     {
         if (safety_max < 0 || resolution < 0)
         {
-            ROS_ERROR_NAMED("hanp_layer", "safety_max or resolution of safety grid cannot be negative");
+            ROS_ERROR("hanp_layer: safety_max or resolution of safety grid cannot be negative");
             return NULL;
         }
 
@@ -330,7 +330,7 @@ namespace hanp_layer
                 }
             }
         }
-        ROS_DEBUG_NAMED("hanp_layer", "created safety_grid of size %d %d", 2 * size_x + 1, 2 * size_y + 1);
+        ROS_DEBUG("hanp_layer: created safety_grid of size %d %d", 2 * size_x + 1, 2 * size_y + 1);
 
         return safetyGrid;
     }
@@ -344,7 +344,7 @@ namespace hanp_layer
     {
         if (visibilityMax < 0 || resolution < 0)
         {
-            ROS_ERROR_NAMED("hanp_layer", "visibilityMax or resolution of visibility grid cannot be negative");
+            ROS_ERROR("hanp_layer: visibilityMax or resolution of visibility grid cannot be negative");
             return NULL;
         }
 

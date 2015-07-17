@@ -29,6 +29,7 @@
 
 #include <ros/ros.h>
 #include <hanp_msgs/TrackedHumans.h>
+#include <visualization_msgs/Marker.h>
 
 #include <math.h>
 
@@ -39,6 +40,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     ros::Publisher humans_pub = n.advertise<hanp_msgs::TrackedHumans>("human_tracker", 1);
+    ros::Publisher vis_pub = n.advertise<visualization_msgs::Marker>( "human_marker", 0 );
 
     ros::Rate loop_rate(5);
 
@@ -55,6 +57,7 @@ int main(int argc, char **argv)
 
         // just publish a human with some position, and without velocities
         hanp_msgs::TrackedHuman human;
+        visualization_msgs::Marker human_marker;
 
         human.track_id = 1;
         human.pose.pose.position.x = 1.5;
@@ -70,7 +73,29 @@ int main(int argc, char **argv)
         humans.header.frame_id = "humans_frame";
         humans.tracks.push_back(human);
 
+        // add marker for the fake human for visualization_msgs
+        human_marker.header.frame_id = humans.header.frame_id;
+        human_marker.header.stamp = humans.header.stamp;
+        human_marker.id = 0;
+        human_marker.type = visualization_msgs::Marker::ARROW;
+        human_marker.action = visualization_msgs::Marker::MODIFY;
+        human_marker.pose.position.x = human.pose.pose.position.x;
+        human_marker.pose.position.y = human.pose.pose.position.y;
+        human_marker.pose.position.z = human.pose.pose.position.z;
+        human_marker.pose.orientation.x = human.pose.pose.orientation.x;
+        human_marker.pose.orientation.y = human.pose.pose.orientation.y;
+        human_marker.pose.orientation.z = human.pose.pose.orientation.z;
+        human_marker.pose.orientation.w = human.pose.pose.orientation.w;
+        human_marker.scale.x = 0.5;
+        human_marker.scale.y = 0.08;
+        human_marker.scale.z = 0.08;
+        human_marker.color.a = 1.0;
+        human_marker.color.r = 0.5;
+        human_marker.color.g = 0.5;
+        human_marker.color.b = 0.0;
+
         humans_pub.publish(humans);
+        vis_pub.publish(human_marker);
 
         ros::spinOnce();
 

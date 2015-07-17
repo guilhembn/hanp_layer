@@ -36,6 +36,8 @@
 #include <costmap_2d/layered_costmap.h>
 #include <dynamic_reconfigure/server.h>
 
+#include <boost/thread.hpp>
+
 #include <hanp_msgs/TrackedHumans.h>
 #include <hanp_layer/HANPLayerConfig.h>
 
@@ -82,6 +84,10 @@ namespace hanp_layer
         ros::Duration human_tracking_delay; // maximum time to wait before considering human_tracking is no more available
         unsigned char* safety_grid; // variable to store created safety grid
         double last_min_x, last_min_y, last_max_x, last_max_y;  // last updated grid values
+
+        // thread lock mutexex
+        boost::mutex update_mutex_;
+        boost::recursive_mutex configuration_mutex_;
 
         //std::map<HumanPosture, double[]> safetyGrids;
     };

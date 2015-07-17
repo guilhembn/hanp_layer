@@ -29,8 +29,8 @@
 
 #include <math.h>
 
-#include<hanp_layer/hanp_layer.h>
-#include<geometry_msgs/PoseStamped.h>
+#include <hanp_layer/hanp_layer.h>
+#include <geometry_msgs/PoseStamped.h>
 
 // declare the SafetyLayer as a Polygon class
 #include <pluginlib/class_list_macros.h>
@@ -72,6 +72,9 @@ namespace hanp_layer
     void HANPLayer::updateBounds(double origin_x, double origin_y, double origin_yaw,
                                     double* min_x, double* min_y, double* max_x, double* max_y)
     {
+        boost::recursive_mutex::scoped_lock lock(configuration_mutex_);
+        update_mutex_.lock();
+
         // check for enable and availability of human tracking before continuing
         if(!enabled_
            || !lastTrackedHumans
@@ -158,8 +161,11 @@ namespace hanp_layer
     void HANPLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j,
                                    int max_i, int max_j)
     {
+        boost::recursive_mutex::scoped_lock lock(configuration_mutex_);
+
         if(!enabled_ || (lastTransformedHumans.size() == 0))
         {
+            update_mutex_.unlock();
             return;
         }
 
@@ -234,17 +240,23 @@ namespace hanp_layer
             }
 
         }
+
+        update_mutex_.unlock();
     }
 
     void HANPLayer::humansUpdate(const hanp_msgs::TrackedHumansPtr& humans)
     {
+        update_mutex_.lock();
         // store humans to local variable
         lastTrackedHumans = humans;
+        update_mutex_.unlock();
     }
 
     // configure the SafetyLayer parameters
     void HANPLayer::reconfigureCB(hanp_layer::HANPLayerConfig &config, uint32_t level)
     {
+        boost::recursive_mutex::scoped_lock lock(configuration_mutex_);
+
         enabled_ = config.enabled;
 
         use_safety = config.use_safety;

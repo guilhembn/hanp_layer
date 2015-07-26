@@ -32,7 +32,7 @@
 #include <hanp_layer/hanp_layer.h>
 #include <geometry_msgs/PoseStamped.h>
 
-// declare the SafetyLayer as a Polygon class
+// declare the HANPLayer as a plugin class
 #include <pluginlib/class_list_macros.h>
 PLUGINLIB_EXPORT_CLASS(hanp_layer::HANPLayer, costmap_2d::Layer)
 

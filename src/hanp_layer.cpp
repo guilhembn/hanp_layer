@@ -27,6 +27,9 @@
  *                                  Harmish Khambhaita on Fri Jun 12 2015
  */
 
+#define TRACKED_HUMANS_TOPIC "tracked_humans"
+#define DEFAULT_HUMAN_SEGMENT "torso"
+
 #include <math.h>
 
 #include <hanp_layer/hanp_layer.h>
@@ -47,9 +50,11 @@ namespace hanp_layer
         ros::NodeHandle nh("~/" + name_);
 
         // subscribe to human positions
-        std::string humans_topic;
-        nh.param("humans_topic", humans_topic, std::string("/human_tracker"));
-        humans_sub = nh.subscribe(humans_topic, 1, &HANPLayer::humansUpdate, this);
+        std::string tracked_humans_topic;
+        nh.param("tracked_humans_topic", tracked_humans_topic, std::string(TRACKED_HUMANS_TOPIC));
+        humans_sub = nh.subscribe(tracked_humans_topic, 1, &HANPLayer::humansUpdate, this);
+
+        nh.param("default_human_segment", default_human_segment_, std::string(DEFAULT_HUMAN_SEGMENT));
 
         // set up dynamic reconfigure server
         dsrv_ = new dynamic_reconfigure::Server<hanp_layer::HANPLayerConfig>(nh);
@@ -103,45 +108,65 @@ namespace hanp_layer
         // copy limits for the costmap to local variables
         double min_x_ = *min_x, min_y_ = *min_y, max_x_ = *max_x, max_y_ = *max_y;
         // transform each human into costmap frame and calculate bounds for costmap
-        //lastTransformedHumans = new geometry_msgs::PoseStamped[lastTrackedHumans->tracks.size()]
-        for(auto &human : lastTrackedHumans->tracks)
+        //lastTransformedHumans = new geometry_msgs::PoseStamped[lastTrackedHumans->humans.size()]
+        for(auto human : lastTrackedHumans->humans)
         {
-            // don't consider this human if walking
-            if (sqrt(human.twist.twist.linear.x * human.twist.twist.linear.x  +
-                human.twist.twist.linear.y * human.twist.twist.linear.y) >= walking_velocity )
+            // check if default segment exists for this human
+            auto segment_it = human.segments.end();
+            for(auto it = human.segments.begin(); it != human.segments.end(); ++it)
+            {
+                if(it->name == default_human_segment_)
+                {
+                    segment_it = it;
+                }
+            }
+
+            // don't consider human if it does not have default segment
+            if(segment_it == human.segments.end())
             {
                 continue;
             }
-
-            // fist transform human positions
-            geometry_msgs::PoseStamped in_human, out_human;
-            in_human.header.stamp = humans_header.stamp;
-            in_human.header.frame_id = humans_header.frame_id;
-            in_human.pose = human.pose.pose;
-            try
+            else
             {
-                // lookup and transform in_human in global_frame_
-                // at time found in in_human
-                tf_->transformPose(global_frame_, in_human, out_human);
+                auto segment = *segment_it;
+
+                // don't consider this human if walking (segment is moving)
+                if (sqrt(segment.twist.twist.linear.x * segment.twist.twist.linear.x  +
+                    segment.twist.twist.linear.y * segment.twist.twist.linear.y) >= walking_velocity )
+                {
+                    continue;
+                }
+
+                // fist transform human positions
+                geometry_msgs::PoseStamped in_human_segment, out_human_segment;
+                in_human_segment.header.stamp = humans_header.stamp;
+                in_human_segment.header.frame_id = humans_header.frame_id;
+                in_human_segment.pose = segment.pose.pose;
+                try
+                {
+                    // lookup and transform in_human in global_frame_
+                    // at time found in in_human
+                    tf_->transformPose(global_frame_, in_human_segment, out_human_segment);
+                }
+                catch(tf::TransformException& ex)
+                {
+                    ROS_ERROR("hanp_layer: tf exception while transforming human pose in \\%s frame: %s",
+                                    global_frame_.c_str(), ex.what());
+                    lastTransformedHumans.clear();
+                    return;
+                }
+
+                // now calculate costmap bounds
+                // note: bouds should be returned in meters, not in grid-points
+                auto size_x = std::max(safety_max, visibility_max), size_y = size_x;
+
+                min_x_ = std::min(min_x_, out_human_segment.pose.position.x - size_x);
+                min_y_ = std::min(min_y_, out_human_segment.pose.position.y - size_y);
+                max_x_ = std::max(max_x_, out_human_segment.pose.position.x + size_x);
+                max_y_ = std::max(max_y_, out_human_segment.pose.position.y + size_y);
+
+                lastTransformedHumans.push_back(out_human_segment);
             }
-            catch(tf::TransformException& ex)
-            {
-                ROS_ERROR("hanp_layer: tf exception while transforming human pose in \\%s frame: %s",
-                                global_frame_.c_str(), ex.what());
-                lastTransformedHumans.clear();
-                return;
-            }
-
-            // now calculate costmap bounds
-            // note: bouds should be returned in meters, not in grid-points
-            auto size_x = std::max(safety_max, visibility_max), size_y = size_x;
-
-            min_x_ = std::min(min_x_, out_human.pose.position.x - size_x);
-            min_y_ = std::min(min_y_, out_human.pose.position.y - size_y);
-            max_x_ = std::max(max_x_, out_human.pose.position.x + size_x);
-            max_y_ = std::max(max_y_, out_human.pose.position.y + size_y);
-
-            lastTransformedHumans.push_back(out_human);
         }
 
         // for correct clearing of the map apply last calculated bounds

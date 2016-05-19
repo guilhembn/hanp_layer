@@ -75,6 +75,7 @@ namespace hanp_layer
         void reconfigureCB(hanp_layer::HANPLayerConfig &config, uint32_t level);
         dynamic_reconfigure::Server<hanp_layer::HANPLayerConfig> *dsrv_;
 
+        std::string default_human_segment_; // human segment to use
         double size_x, size_y;              // size of grid around human
         bool use_safety, use_visibility;    // whether to use these layers
         double safety_max, visibility_max;  // radius for safetry grid around human

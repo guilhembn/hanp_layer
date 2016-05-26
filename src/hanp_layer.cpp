@@ -27,13 +27,15 @@
  *                                  Harmish Khambhaita on Fri Jun 12 2015
  */
 
-#define TRACKED_HUMANS_TOPIC "tracked_humans"
-#define DEFAULT_HUMAN_SEGMENT "torso"
+#define THROTTLE_TIME 4 // seconds
+#define TRACKED_HUMANS_TOPIC "/fake_humans_publisher/humans"
+#define DEFAULT_HUMAN_SEGMENT hanp_msgs::TrackedSegmentType::TORSO
 
 #include <math.h>
 
 #include <hanp_layer/hanp_layer.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <hanp_msgs/TrackedSegmentType.h>
 
 // declare the HANPLayer as a plugin class
 #include <pluginlib/class_list_macros.h>
@@ -53,8 +55,7 @@ namespace hanp_layer
         std::string tracked_humans_topic;
         nh.param("tracked_humans_topic", tracked_humans_topic, std::string(TRACKED_HUMANS_TOPIC));
         humans_sub = nh.subscribe(tracked_humans_topic, 1, &HANPLayer::humansUpdate, this);
-
-        nh.param("default_human_segment", default_human_segment_, std::string(DEFAULT_HUMAN_SEGMENT));
+        nh.param("default_human_segment", default_human_segment_, (int)(DEFAULT_HUMAN_SEGMENT));
 
         // set up dynamic reconfigure server
         dsrv_ = new dynamic_reconfigure::Server<hanp_layer::HANPLayerConfig>(nh);
@@ -65,6 +66,10 @@ namespace hanp_layer
         // store global_frame name locally
         global_frame_ = layered_costmap_->getGlobalFrameID();
         resolution = layered_costmap_->getCostmap()->getResolution();
+        if(resolution <= 0)
+        {
+            ROS_WARN("hanp_layer: resolution for grids is set to <= 0");
+        }
 
         // initialize last bounds
         last_min_x = last_min_y = last_max_x = last_max_y = 0.0;
@@ -77,8 +82,12 @@ namespace hanp_layer
     void HANPLayer::updateBounds(double origin_x, double origin_y, double origin_yaw,
                                     double* min_x, double* min_y, double* max_x, double* max_y)
     {
-        boost::recursive_mutex::scoped_lock lock(configuration_mutex_);
         update_mutex_.lock();
+        // store trackedHumans for current update
+        lastTrackedHumans = trackedHumans;
+        update_mutex_.unlock();
+
+        boost::recursive_mutex::scoped_lock lock(configuration_mutex_);
 
         // check for enable and availability of human tracking before continuing
         if(!enabled_
@@ -115,7 +124,7 @@ namespace hanp_layer
             auto segment_it = human.segments.end();
             for(auto it = human.segments.begin(); it != human.segments.end(); ++it)
             {
-                if(it->name == default_human_segment_)
+                if(it->type == default_human_segment_)
                 {
                     segment_it = it;
                 }
@@ -180,6 +189,9 @@ namespace hanp_layer
         last_min_y = min_y_;
         last_max_x = max_x_;
         last_max_y = max_y_;
+
+        // ROS_DEBUG("hanp_layer: updated bounds to min_x=%f, min_y=%f, max_x=%f, max_y=%f",
+        //     last_min_x, last_min_y, last_max_x, last_max_y);
     }
 
     // method for applyting changes in this layer to global costmap
@@ -190,7 +202,6 @@ namespace hanp_layer
 
         if(!enabled_ || (lastTransformedHumans.size() == 0))
         {
-            update_mutex_.unlock();
             return;
         }
 
@@ -205,7 +216,6 @@ namespace hanp_layer
                                human.pose.position.x, human.pose.position.y);
                 continue;
             }
-            //ROS_INFO("hanp_layer: human x:%d y:%d", cell_x, cell_y);
 
             // general algorithm is to
             // create satic grids according to human posture, standing, sitting, walking
@@ -214,6 +224,12 @@ namespace hanp_layer
 
             if(use_safety)
             {
+                if(safety_grid == NULL)
+                {
+                    ROS_WARN_THROTTLE(THROTTLE_TIME, "hanp_layer: not updating costmap as safety_grid is empty");
+                    return;
+                }
+
                 // apply safety grid according to position of each human
                 auto size_x = (int)(safety_max / resolution), size_y = size_x;
 
@@ -242,6 +258,11 @@ namespace hanp_layer
                 double yaw = tf::getYaw(human.pose.orientation);
                 auto visibility_grid = createVisibilityGrid(visibility_max, resolution,
                                                             costmap_2d::LETHAL_OBSTACLE, cos(yaw), sin(yaw));
+                if(visibility_grid == NULL)
+                {
+                    ROS_WARN_THROTTLE(THROTTLE_TIME, "hanp_layer: not updating costmap as visibility_grid is empty");
+                    return;
+                }
 
                 // apply the visibility grid
                 auto size_x = (int)(visibility_max / resolution), size_y = size_x;
@@ -266,14 +287,14 @@ namespace hanp_layer
 
         }
 
-        update_mutex_.unlock();
+        // ROS_DEBUG("hanp_layer: updated costs");
     }
 
     void HANPLayer::humansUpdate(const hanp_msgs::TrackedHumansPtr& humans)
     {
         update_mutex_.lock();
         // store humans to local variable
-        lastTrackedHumans = humans;
+        trackedHumans = humans;
         update_mutex_.unlock();
     }
 
@@ -315,6 +336,10 @@ namespace hanp_layer
 
         // re-create safety grid, with changed safety_max and current resolution
         resolution = layered_costmap_->getCostmap()->getResolution();
+        if(resolution <= 0)
+        {
+            ROS_WARN("hanp_layer: resolution for grids is set to <= 0");
+        }
         safety_grid = createSafetyGrid(safety_max, resolution, costmap_2d::LETHAL_OBSTACLE);
     }
 
@@ -323,9 +348,14 @@ namespace hanp_layer
     // resolution is in meters/cell, default is 0.5
     unsigned char* HANPLayer::createSafetyGrid(double safety_max, double resolution, unsigned int max_value)
     {
-        if (safety_max < 0 || resolution < 0)
+        if (safety_max < 0)
         {
-            ROS_ERROR("hanp_layer: safety_max or resolution of safety grid cannot be negative");
+            ROS_ERROR("hanp_layer: safety_max of safety grid cannot be negative");
+            return NULL;
+        }
+        if(resolution <= 0)
+        {
+            ROS_ERROR("hanp_layer: resolution of safety grid has to be positive");
             return NULL;
         }
 
@@ -379,21 +409,26 @@ namespace hanp_layer
     // creates visibility grid around the human for different postures
     // radius in meters
     // resolution in meters/cell, default is 0.5
-    unsigned char* HANPLayer::createVisibilityGrid(double visibilityMax, double resolution,
+    unsigned char* HANPLayer::createVisibilityGrid(double visibility_max, double resolution,
                                                    unsigned int max_value, double look_x, double look_y)
     {
-        if (visibilityMax < 0 || resolution < 0)
+        if (visibility_max < 0)
         {
-            ROS_ERROR("hanp_layer: visibilityMax or resolution of visibility grid cannot be negative");
+            ROS_ERROR("hanp_layer: visibility_max of visibility grid cannot be negative");
+            return NULL;
+        }
+        if(resolution <= 0)
+        {
+            ROS_ERROR("hanp_layer: resolution of visibility grid has to be positive");
             return NULL;
         }
 
         // size of the grid depends on the resolution
         // array should be of 'round' shape, since it not possible we use square and put 0 otherwise
-        auto size_x = (int)(visibilityMax / resolution), size_y = size_x;
+        auto size_x = (int)(visibility_max / resolution), size_y = size_x;
 
         // create visibility grid array using visibility function
-        //  r = pi/visibilityMax
+        //  r = pi/visibility_max
         //  g(i,j) = cos(r x i + 1) cos(r x j + 1) / 4
         //  Δψ = | arccos(Pi,j . L) |
         //    where P is vector to point (i,j) and L is vector of human looking direction
@@ -410,7 +445,7 @@ namespace hanp_layer
         double psi = M_PI / 2;
 
         // multiply r by resolution to get proper values for cells in sub-meter grid
-        double r = M_PI * resolution / visibilityMax;
+        double r = M_PI * resolution / visibility_max;
 
         // reducing index calculation from
         // (y + size_y) (2 size_x + 1) + (x + size_x)
@@ -436,7 +471,7 @@ namespace hanp_layer
                 }
 
 
-                if ((sqrt((x * x) + (y * y)) <= (visibilityMax / resolution)) && delta_psi >= psi)
+                if ((sqrt((x * x) + (y * y)) <= (visibility_max / resolution)) && delta_psi >= psi)
                 {
                     visibilityGrid[index_1 + (index_2 * y) + x] =
                         (unsigned char)((delta_psi * ((cos(r * x) +1) * (cos(r * y) +1) * 255 / 4) / M_PI) + 0.5);

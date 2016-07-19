@@ -1,0 +1,10 @@
+hanp:
+    enabled: true
+    use_safety: true
+    safety_weight: 0.5
+    safety_max: 1.0
+    use_visibility: true
+    visibility_weight: 0.5
+    visibility_max: 1.0
+    human_tracking_delay: 1.0
+    walking_velocity: 0.1

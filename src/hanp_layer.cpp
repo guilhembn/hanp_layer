@@ -28,7 +28,7 @@
  */
 
 #define THROTTLE_TIME 4 // seconds
-#define TRACKED_HUMANS_TOPIC "/fake_humans_publisher/humans"
+#define TRACKED_HUMANS_TOPIC "humans"
 #define DEFAULT_HUMAN_SEGMENT hanp_msgs::TrackedSegmentType::TORSO
 
 #include <math.h>
@@ -68,7 +68,7 @@ namespace hanp_layer
         resolution = layered_costmap_->getCostmap()->getResolution();
         if(resolution <= 0)
         {
-            ROS_WARN("hanp_layer: resolution for grids is set to <= 0");
+            ROS_WARN("hanp_layer: resolution for grids is set to <= 0 (%f)", resolution);
         }
 
         // initialize last bounds
@@ -127,6 +127,7 @@ namespace hanp_layer
                 if(it->type == default_human_segment_)
                 {
                     segment_it = it;
+                    break;
                 }
             }
 
@@ -295,6 +296,7 @@ namespace hanp_layer
         update_mutex_.lock();
         // store humans to local variable
         trackedHumans = humans;
+        ROS_INFO_ONCE("hanp_layer: subscribed to humans");
         update_mutex_.unlock();
     }
 
@@ -338,7 +340,7 @@ namespace hanp_layer
         resolution = layered_costmap_->getCostmap()->getResolution();
         if(resolution <= 0)
         {
-            ROS_WARN("hanp_layer: resolution for grids is set to <= 0");
+            ROS_WARN("hanp_layer: resolution for grids is set to <= 0 (%f)", resolution);
         }
         safety_grid = createSafetyGrid(safety_max, resolution, costmap_2d::LETHAL_OBSTACLE);
     }

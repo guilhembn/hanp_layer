@@ -31,7 +31,7 @@
 #include <catch.hpp>
 #include <hanp_layer/hanp_layer.h>
 
-int main( int argc, char* const argv[] )
+int main( int argc, char* argv[] )
 {
   Catch::Session session; // there must be exactly one instance
 

@@ -80,6 +80,7 @@ namespace hanp_layer
         bool use_safety, use_visibility;    // whether to use these layers
         double safety_max, visibility_max;  // radius for safetry grid around human
         double safety_weight, visibility_weight;    // weights for weited-sum of costs
+        double human_psi;                   // fov angle of the humans (radians)
         double resolution;                  // resolution of the map, copied from master map
         double walking_velocity;            // above this velocity human will be considered walking
         ros::Duration human_tracking_delay; // maximum time to wait before considering human_tracking is no more available

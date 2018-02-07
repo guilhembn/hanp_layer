@@ -82,6 +82,7 @@ namespace hanp_layer
     void HANPLayer::updateBounds(double origin_x, double origin_y, double origin_yaw,
                                     double* min_x, double* min_y, double* max_x, double* max_y)
     {
+//        ROS_INFO_NAMED("HANPLayer", "updating Bounds.");
         update_mutex_.lock();
         // store trackedHumans for current update
         lastTrackedHumans = trackedHumans;
@@ -104,6 +105,12 @@ namespace hanp_layer
                 *max_x = last_max_x;
                 *max_y = last_max_y;
             }
+//            ROS_INFO_NAMED("HANPLayer", "(aborted) Bounds set to : %f, %f, %f, %f.", *min_x, *min_y, *max_x, *max_y);
+//            //ROS_INFO_NAMED("HANPLayer", "enabled: %d, lastTrackedHuman: %d, delay: %d, safety/visi : %d/%d",enabled_, !lastTrackedHumans, (ros::Time::now() - lastTrackedHumans->header.stamp) > human_tracking_delay, use_safety, use_visibility);
+//            ROS_INFO_NAMED("HANPLayer", "enabled : %d, sqfety : %d, visi : %d", enabled_, use_safety, use_visibility);
+//            if (lastTrackedHumans) {
+//                ROS_INFO_NAMED("HANPLayer", "delay : %f", (ros::Time::now() - lastTrackedHumans->header.stamp).toSec());
+//            }
             return;
         }
 
@@ -190,9 +197,8 @@ namespace hanp_layer
         last_min_y = min_y_;
         last_max_x = max_x_;
         last_max_y = max_y_;
-
-        // ROS_DEBUG("hanp_layer: updated bounds to min_x=%f, min_y=%f, max_x=%f, max_y=%f",
-        //     last_min_x, last_min_y, last_max_x, last_max_y);
+        ROS_DEBUG("hanp_layer: updated bounds to min_x=%f, min_y=%f, max_x=%f, max_y=%f",
+             last_min_x, last_min_y, last_max_x, last_max_y);
     }
 
     // method for applyting changes in this layer to global costmap
@@ -200,9 +206,11 @@ namespace hanp_layer
                                    int max_i, int max_j)
     {
         boost::recursive_mutex::scoped_lock lock(configuration_mutex_);
+        ROS_DEBUG("updating Costs...");
 
         if(!enabled_ || (lastTransformedHumans.size() == 0))
         {
+            ROS_DEBUG("Not Enabled or lastTransformedHuman empty");
             return;
         }
 
@@ -288,7 +296,7 @@ namespace hanp_layer
 
         }
 
-        // ROS_DEBUG("hanp_layer: updated costs");
+        ROS_DEBUG("hanp_layer: updated costs");
     }
 
     void HANPLayer::humansUpdate(const hanp_msgs::TrackedHumansPtr& humans)
@@ -329,6 +337,7 @@ namespace hanp_layer
             safety_weight = visibility_weight = 0.0;
         }
 
+        human_psi = config.humans_psi * M_PI / 180;
         walking_velocity = config.walking_velocity;
 
         ROS_DEBUG("hanp_layer: safety_weight = %f, visibility_weight = %f",
@@ -443,8 +452,8 @@ namespace hanp_layer
         // create a grid where human is at center, and #cells both sides = size
         auto visibilityGrid = new unsigned char[(2 * size_x + 1) * (2 * size_y + 1)];
 
-        // fix angle for visibility
-        double psi = M_PI / 2;
+        // angle for visibility
+        double psi = human_psi / 2;
 
         // multiply r by resolution to get proper values for cells in sub-meter grid
         double r = M_PI * resolution / visibility_max;
